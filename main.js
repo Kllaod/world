@@ -4,9 +4,9 @@ import { twoline2satrec, propagate, gstime, eciToGeodetic, degreesLat, degreesLo
 import { SATELLITES } from './satellites.js';
 
 // Auto-detect all images in each country folder via Vite glob import
-const _moroccoGlob  = import.meta.glob('/public/morocco/*',  { eager: true, as: 'url' });
-const _austriaGlob  = import.meta.glob('/public/austria/*',  { eager: true, as: 'url' });
-const _senegalGlob  = import.meta.glob('/public/senegal/*',  { eager: true, as: 'url' });
+const _moroccoGlob  = import.meta.glob('/public/morocco/*',  { eager: true, query: '?url', import: 'default' });
+const _austriaGlob  = import.meta.glob('/public/austria/*',  { eager: true, query: '?url', import: 'default' });
+const _senegalGlob  = import.meta.glob('/public/senegal/*',  { eager: true, query: '?url', import: 'default' });
 const sortUrls = (glob) =>
     Object.keys(glob).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).map(k => glob[k]);
 
