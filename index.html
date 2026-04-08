@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Satellite Tracker</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+    <div id="map-container"></div>
+
+    <div id="ui-overlay">
+
+    <!-- Reset View -->
+    <button id="resetButton" class="reset-button">Reset View</button>
+
+    <!-- Debug Toggle -->
+    <button id="debugToggle" style="position:fixed;top:20px;left:20px;z-index:100;padding:10px 15px;background:#932c16;color:white;border:none;cursor:pointer;font-size:12px;border-radius:4px;">DEBUG</button>
+
+    <!-- Satellite List Toggle Button -->
+    <button id="satListToggle" style="position:fixed;top:60px;left:20px;z-index:100;padding:10px 15px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:4px;letter-spacing:0.5px;">&#9776; Satellites</button>
+
+    <!-- Satellite List Panel -->
+    <div id="satListPanel" style="display:none;position:fixed;top:100px;bottom:280px;left:20px;z-index:100;width:300px;flex-direction:column;background:rgba(6,6,13,0.97);border:1px solid #932c16;border-radius:6px;overflow:hidden;min-height:120px;">
+        <!-- Header with enable/disable all -->
+        <div style="padding:10px 12px;background:rgba(108,36,22,0.3);border-bottom:1px solid #932c16;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;flex:1;">Satellites</span>
+            <button id="enableAllBtn" style="padding:4px 8px;font-size:10px;background:transparent;color:white;border:1px solid #932c16;border-radius:3px;cursor:pointer;">Enable All</button>
+            <button id="disableAllBtn" style="padding:4px 8px;font-size:10px;background:transparent;color:white;border:1px solid #932c16;border-radius:3px;cursor:pointer;">Disable All</button>
+        </div>
+        <!-- Scrollable list -->
+        <div id="satListBody" style="overflow-y:auto;flex:1;padding:4px 0;"></div>
+    </div>
+
+    <!-- Satellite Info Panel (bottom-left) -->
+    <div id="issPanel" class="iss-panel">
+        <div class="panel-header" id="panelHeader">ISS — Station</div>
+        <div class="panel-content">
+            <div class="info-row">
+                <span class="label">Name:</span>
+                <span class="value" id="satName">--</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Latitude:</span>
+                <span class="value" id="satLat">--</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Longitude:</span>
+                <span class="value" id="satLng">--</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Altitude:</span>
+                <span class="value" id="satAlt">--</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Velocity:</span>
+                <span class="value" id="satVel">--</span>
+            </div>
+            <button id="selectSatButton" class="select-button">Follow ISS</button>
+        </div>
+    </div>
+
+    <!-- Map Style & Controls (bottom-right) -->
+    <div id="controls-panel" style="position:fixed;bottom:20px;right:20px;z-index:100;background:rgba(38,22,19,0.95);border:1px solid #932c16;border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:280px;">
+        <!-- Row 1: Style + Reset Trail -->
+        <div style="display:flex;gap:5px;">
+            <button id="styleLight" style="padding:8px 12px;background:#932c16;color:white;border:none;cursor:pointer;font-size:11px;border-radius:3px;">Light</button>
+            <button id="styleSatellite" style="padding:8px 12px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">Satellite</button>
+            <button id="styleTerrain" style="padding:8px 12px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">Terrain</button>
+            <button id="resetTrailBtn" style="flex:1;padding:8px 10px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">Reset Trail</button>
+        </div>
+        <!-- Row 2: Toggles -->
+        <div style="display:flex;gap:5px;">
+            <button id="toggleLabelsBtn" style="flex:1;padding:8px 6px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">Labels: All</button>
+            <button id="toggleTrailBtn" style="flex:1;padding:8px 6px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">Trail: Solid</button>
+            <button id="toggleStarsBtn" style="flex:1;padding:8px 6px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;">BG: Stars</button>
+        </div>
+        <!-- Row 3: Spin + slider -->
+        <div style="display:flex;align-items:center;gap:8px;">
+            <button id="toggleSpinBtn" style="padding:8px 12px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;white-space:nowrap;">Spin: Off</button>
+            <span style="font-size:10px;color:#aaa;white-space:nowrap;">Speed</span>
+            <input id="spinSpeedSlider" type="range" min="2" max="120" value="20"
+                style="flex:1;height:4px;accent-color:#932c16;cursor:pointer;" />
+        </div>
+        <!-- Row 4: Smooth + Theme — fill the row -->
+        <div style="display:flex;gap:5px;">
+            <button id="smoothIndicator" title="Click or press C to toggle smooth camera" style="flex:1;padding:8px 6px;background:#932c16;color:#fff;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;white-space:nowrap;">Smooth: On</button>
+            <button id="themeToggleBtn" style="flex:1;padding:8px 6px;background:transparent;color:white;border:1px solid #932c16;cursor:pointer;font-size:11px;border-radius:3px;white-space:nowrap;">Theme: Default</button>
+        </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" style="position:fixed;top:100px;right:20px;z-index:99;background:rgba(0,0,0,0.9);border:2px solid #0f0;padding:10px;width:350px;font-family:monospace;font-size:11px;color:#0f0;display:none;max-height:200px;overflow-y:auto;">
+        <div style="margin-bottom:5px;border-bottom:1px solid #0f0;padding-bottom:5px;">DEBUG LOG</div>
+        <div id="debugContent">Waiting...</div>
+    </div>
+
+    </div><!-- end ui-overlay -->
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
