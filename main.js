@@ -233,9 +233,9 @@ function applyFog() {
     const mil = themeMode === 'military';
     try {
         map.setFog({
-            'color':         mil ? '#020702' : '#06060D',
-            'high-color':    mil ? '#040D04' : '#0B0B17',
-            'space-color':   mil ? '#010401' : '#06060D',
+            'color':         mil ? '#06090D' : '#06060D',
+            'high-color':    mil ? '#0B170B' : '#0B0B17',
+            'space-color':   mil ? '#06060D' : '#06060D',
             'star-intensity': (bgMode === 'stars' || bgMode === 'both') ? 0.9 : 0,
             'horizon-blend': 0.02, 'range': [0.8, 8]
         });
@@ -250,11 +250,11 @@ function applyColorPalette() {
         return;
     }
     const mil = themeMode === 'military';
-    const LAND       = mil ? '#040D04' : '#0B0B17';
-    const OCEAN      = mil ? '#010801' : '#171730';
-    const BORDER     = mil ? '#1A5C1A' : '#932C16';
-    const BORDER_DIM = mil ? '#0F3A0F' : '#6C2416';
-    const BG         = mil ? '#020702' : '#06060D';
+    const LAND       = mil ? '#0B170B' : '#0B0B17';
+    const OCEAN      = mil ? '#17301A' : '#171730';
+    const BORDER     = mil ? '#2C9316' : '#932C16';
+    const BORDER_DIM = mil ? '#246C14' : '#6C2416';
+    const BG         = mil ? '#06090D' : '#06060D';
     const p = (layer, prop, val) => {
         try { if (map.getLayer(layer)) map.setPaintProperty(layer, prop, val); } catch (_) {}
     };
