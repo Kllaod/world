@@ -264,7 +264,8 @@ function applyColorPalette() {
     p('waterway', 'line-color', OCEAN);
     p('water', 'fill-outline-color', BORDER);
     ['national-park', 'landuse', 'landuse-shadow', 'pitch-outline'].forEach(l => p(l, 'fill-color', LAND));
-    ['admin-0-boundary', 'admin-0-boundary-disputed', 'admin-0-boundary-bg'].forEach(l => p(l, 'line-color', BORDER));
+    ['admin-0-boundary', 'admin-0-boundary-bg'].forEach(l => p(l, 'line-color', BORDER));
+    try { if (map.getLayer('admin-0-boundary-disputed')) map.setLayoutProperty('admin-0-boundary-disputed', 'visibility', 'none'); } catch (_) {}
     ['admin-1-boundary', 'admin-1-boundary-bg'].forEach(l => p(l, 'line-color', BORDER_DIM));
     [
         'road-primary', 'road-secondary-tertiary', 'road-street', 'road-minor',
