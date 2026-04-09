@@ -1233,4 +1233,38 @@ function updateStyleButtons() {
 // START
 // ============================================================================
 debugLog('Script loaded');
-document.addEventListener('DOMContentLoaded', () => { debugLog('DOM ready'); init(); });
+
+function showFakeError() {
+    const ERRORS = [
+        { code: 'ERR_CONNECTION_TIMED_OUT',   msg: "This site can't be reached",    detail: "kllaod.github.io took too long to respond.\n\nTry:\n• Checking the connection\n• Checking the proxy and the firewall\n• Running Windows Network Diagnostics" },
+        { code: 'ERR_INTERNET_DISCONNECTED',  msg: "No internet",                   detail: "Your device is not connected to the internet.\n\nTry:\n• Checking your network cables, modem, and router\n• Reconnecting to Wi-Fi" },
+        { code: 'ERR_NETWORK_CHANGED',        msg: "Network changed",               detail: "A network change was detected. Check data or Wi-Fi connection and try again." },
+    ];
+    const e = ERRORS[Math.floor(Math.random() * ERRORS.length)];
+    document.head.innerHTML = `<style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#202124;background:#fff;
+             display:flex;align-items:center;justify-content:center;min-height:100vh;}
+        a{color:#1a0dab;text-decoration:none;}a:hover{text-decoration:underline;}
+    </style>`;
+    document.body.innerHTML = `<div style="max-width:460px;padding:32px 16px;">
+        <svg width="124" height="66" viewBox="0 0 124 66" style="margin-bottom:16px">
+            <path fill="#dadce0" d="M62 0C27.7 0 0 14.9 0 33.3S27.7 66 62 66s62-14.9 62-32.7S96.3 0 62 0zm0 58.6C31.5 58.6 7 47.3 7 33.3S31.5 8 62 8s55 11.3 55 25.3-24.5 25.3-55 25.3z"/>
+            <circle fill="#dadce0" cx="62" cy="33" r="10"/>
+            <line x1="30" y1="10" x2="94" y2="56" stroke="#dadce0" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <h1 style="font-size:22px;font-weight:400;margin-bottom:8px">${e.msg}</h1>
+        <p style="font-size:13px;color:#70757a;margin-bottom:16px;line-height:1.6;white-space:pre-line">${e.detail}</p>
+        <p style="font-size:12px;color:#bbb">${e.code}</p>
+    </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const r = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+        const d = await r.json();
+        if (!['MA', 'AT'].includes(d.country_code)) { showFakeError(); return; }
+    } catch (_) { /* network error — allow through to avoid false-blocking real users */ }
+    debugLog('DOM ready');
+    init();
+});
