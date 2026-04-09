@@ -233,9 +233,9 @@ function applyFog() {
     const mil = themeMode === 'military';
     try {
         map.setFog({
-            'color':         mil ? '#06090D' : '#06060D',
+            'color':         mil ? '#060D06' : '#06060D',
             'high-color':    mil ? '#0B170B' : '#0B0B17',
-            'space-color':   mil ? '#06060D' : '#06060D',
+            'space-color':   mil ? '#060D06' : '#06060D',
             'star-intensity': (bgMode === 'stars' || bgMode === 'both') ? 0.9 : 0,
             'horizon-blend': 0.02, 'range': [0.8, 8]
         });
@@ -254,7 +254,7 @@ function applyColorPalette() {
     const OCEAN      = mil ? '#17301A' : '#171730';
     const BORDER     = mil ? '#2C9316' : '#932C16';
     const BORDER_DIM = mil ? '#246C14' : '#6C2416';
-    const BG         = mil ? '#06090D' : '#06060D';
+    const BG         = mil ? '#060D06' : '#06060D';
     const p = (layer, prop, val) => {
         try { if (map.getLayer(layer)) map.setPaintProperty(layer, prop, val); } catch (_) {}
     };
@@ -272,13 +272,23 @@ function applyColorPalette() {
         'disputed-boundaries-stroke',
         'disputed-boundaries-fill',
     ].forEach(l => { try { if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', 'none'); } catch (_) {} });
-    // Filter admin-0-boundary to exclude EH (Western Sahara) at high zoom
+    // Filter admin-0-boundary to exclude disputed features (berm / W.Sahara line at all zoom levels)
+    // Mapbox stores 'disputed' as integer 1, boolean true, or string 'true' depending on tile version
     try {
         if (map.getLayer('admin-0-boundary')) {
             map.setFilter('admin-0-boundary', [
                 'all',
+                ['!=', ['get', 'disputed'], 1],
+                ['!=', ['get', 'disputed'], true],
                 ['!=', ['get', 'disputed'], 'true'],
-                ['!', ['in', 'EH', ['get', 'iso_3166_1_alpha_3']]],
+            ]);
+        }
+        if (map.getLayer('admin-0-boundary-bg')) {
+            map.setFilter('admin-0-boundary-bg', [
+                'all',
+                ['!=', ['get', 'disputed'], 1],
+                ['!=', ['get', 'disputed'], true],
+                ['!=', ['get', 'disputed'], 'true'],
             ]);
         }
     } catch (_) {}
@@ -1103,7 +1113,7 @@ function toggleStars() {
 
 function applyBG() {
     // Grid is now a Mapbox layer — just toggle its visibility and update star intensity
-    document.body.style.background = themeMode === 'military' ? '#000800' : '#010102';
+    document.body.style.background = themeMode === 'military' ? '#010201' : '#010102';
     applyGraticuleVisibility();
     applyFog();
 }
